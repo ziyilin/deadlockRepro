@@ -16,6 +16,9 @@ local.properties
 .classpath
 .settings/
 .loadpath
+.project
+.pmd
+.checkstyle
 
 # External tool builders
 .externalToolBuilders/
