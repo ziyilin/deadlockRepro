@@ -1,0 +1,1 @@
+mvn install:install-file -Dfile=lib/soot-2.5.0.jar -DgroupId=sable -DartifactId=soot -Dversion=2.5.0 -Dpackaging=jar -DgeneratePom=true
