@@ -37,6 +37,6 @@
 	-->	
   </dependencies>
   <build> 
-	<sourceDirectory>F:\project\junior_summer_homework\CFGBuilder\src</sourceDirectory> 
+	<sourceDirectory>src</sourceDirectory> 
   </build>
 </project>
