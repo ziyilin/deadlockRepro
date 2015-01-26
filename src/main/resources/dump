@@ -4,28 +4,28 @@ Java stack information for the threads listed above:
 
 "Thread-1":
 
-                at edu.sjtu.stap.checkmate.sample.Deadlocker.resetA(Deadlocker.java:48)
+                at edu.sjtu.stap.deadlock.sample.Deadlocker.resetA(Deadlocker.java:48)
 
-                - waiting to lock <0x00000007d5dff818> (a edu.sjtu.stap.checkmate.sample.Deadlocker)
+                - waiting to lock <0x00000007d5dff818> (a edu.sjtu.stap.deadlock.sample.Deadlocker)
 
-                at edu.sjtu.stap.checkmate.sample.Deadlocker.doAnotherThing(Deadlocker.java:29)
+                at edu.sjtu.stap.deadlock.sample.Deadlocker.doAnotherThing(Deadlocker.java:29)
 
                 - locked <0x00000007d5dff830> (a java.lang.Object)
 
-                at edu.sjtu.stap.checkmate.sample.Deadlocker$2.run(Deadlocker.java:63)
+                at edu.sjtu.stap.deadlock.sample.Deadlocker$2.run(Deadlocker.java:63)
 
                 at java.lang.Thread.run(Thread.java:722)
 
 "Thread-0":
 
-                at edu.sjtu.stap.checkmate.sample.Deadlocker.foo(Deadlocker.java:39)
+                at edu.sjtu.stap.deadlock.sample.Deadlocker.foo(Deadlocker.java:39)
 
                 - waiting to lock <0x00000007d5dff830> (a java.lang.Object)
 
-                - locked <0x00000007d5dff818> (a edu.sjtu.stap.checkmate.sample.Deadlocker)
+                - locked <0x00000007d5dff818> (a edu.sjtu.stap.deadlock.sample.Deadlocker)
 
-                at edu.sjtu.stap.checkmate.sample.Deadlocker.doSomething(Deadlocker.java:22)
+                at edu.sjtu.stap.deadlock.sample.Deadlocker.doSomething(Deadlocker.java:22)
 
-                at edu.sjtu.stap.checkmate.sample.Deadlocker$1.run(Deadlocker.java:57)
+                at edu.sjtu.stap.deadlock.sample.Deadlocker$1.run(Deadlocker.java:57)
 
                 at java.lang.Thread.run(Thread.java:722)

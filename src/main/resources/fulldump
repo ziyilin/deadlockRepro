@@ -92,11 +92,11 @@ Full thread dump Java HotSpot(TM) 64-Bit Server VM (23.21-b01 mixed mode):
 
 "Thread-1" prio=6 tid=0x0000000008ac9000 nid=0x934 waiting for monitor entry [0x000000000aadf000]
    java.lang.Thread.State: BLOCKED (on object monitor)
-	at edu.sjtu.stap.checkmate.sample.Deadlocker.resetA(Deadlocker.java:48)
-	- waiting to lock <0x00000000eae56840> (a edu.sjtu.stap.checkmate.sample.Deadlocker)
-	at edu.sjtu.stap.checkmate.sample.Deadlocker.doAnotherThing(Deadlocker.java:29)
+	at edu.sjtu.stap.deadlock.sample.Deadlocker.resetA(Deadlocker.java:48)
+	- waiting to lock <0x00000000eae56840> (a edu.sjtu.stap.deadlock.sample.Deadlocker)
+	at edu.sjtu.stap.deadlock.sample.Deadlocker.doAnotherThing(Deadlocker.java:29)
 	- locked <0x00000000eae56858> (a java.lang.Object)
-	at edu.sjtu.stap.checkmate.sample.Deadlocker$2.run(Deadlocker.java:63)
+	at edu.sjtu.stap.deadlock.sample.Deadlocker$2.run(Deadlocker.java:63)
 	at java.lang.Thread.run(Unknown Source)
 
    Locked ownable synchronizers:
@@ -104,11 +104,11 @@ Full thread dump Java HotSpot(TM) 64-Bit Server VM (23.21-b01 mixed mode):
 
 "Thread-0" prio=6 tid=0x0000000008ac8000 nid=0x16fc waiting for monitor entry [0x000000000a86e000]
    java.lang.Thread.State: BLOCKED (on object monitor)
-	at edu.sjtu.stap.checkmate.sample.Deadlocker.foo(Deadlocker.java:39)
+	at edu.sjtu.stap.deadlock.sample.Deadlocker.foo(Deadlocker.java:39)
 	- waiting to lock <0x00000000eae56858> (a java.lang.Object)
-	- locked <0x00000000eae56840> (a edu.sjtu.stap.checkmate.sample.Deadlocker)
-	at edu.sjtu.stap.checkmate.sample.Deadlocker.doSomething(Deadlocker.java:22)
-	at edu.sjtu.stap.checkmate.sample.Deadlocker$1.run(Deadlocker.java:57)
+	- locked <0x00000000eae56840> (a edu.sjtu.stap.deadlock.sample.Deadlocker)
+	at edu.sjtu.stap.deadlock.sample.Deadlocker.doSomething(Deadlocker.java:22)
+	at edu.sjtu.stap.deadlock.sample.Deadlocker$1.run(Deadlocker.java:57)
 	at java.lang.Thread.run(Unknown Source)
 
    Locked ownable synchronizers:
@@ -199,7 +199,7 @@ JNI global references: 6060
 Found one Java-level deadlock:
 =============================
 "Thread-1":
-  waiting to lock monitor 0x00000000089d1210 (object 0x00000000eae56840, a edu.sjtu.stap.checkmate.sample.Deadlocker),
+  waiting to lock monitor 0x00000000089d1210 (object 0x00000000eae56840, a edu.sjtu.stap.deadlock.sample.Deadlocker),
   which is held by "Thread-0"
 "Thread-0":
   waiting to lock monitor 0x00000000089cd3b8 (object 0x00000000eae56858, a java.lang.Object),
@@ -208,18 +208,18 @@ Found one Java-level deadlock:
 Java stack information for the threads listed above:
 ===================================================
 "Thread-1":
-	at edu.sjtu.stap.checkmate.sample.Deadlocker.resetA(Deadlocker.java:48)
-	- waiting to lock <0x00000000eae56840> (a edu.sjtu.stap.checkmate.sample.Deadlocker)
-	at edu.sjtu.stap.checkmate.sample.Deadlocker.doAnotherThing(Deadlocker.java:29)
+	at edu.sjtu.stap.deadlock.sample.Deadlocker.resetA(Deadlocker.java:48)
+	- waiting to lock <0x00000000eae56840> (a edu.sjtu.stap.deadlock.sample.Deadlocker)
+	at edu.sjtu.stap.deadlock.sample.Deadlocker.doAnotherThing(Deadlocker.java:29)
 	- locked <0x00000000eae56858> (a java.lang.Object)
-	at edu.sjtu.stap.checkmate.sample.Deadlocker$2.run(Deadlocker.java:63)
+	at edu.sjtu.stap.deadlock.sample.Deadlocker$2.run(Deadlocker.java:63)
 	at java.lang.Thread.run(Unknown Source)
 "Thread-0":
-	at edu.sjtu.stap.checkmate.sample.Deadlocker.foo(Deadlocker.java:39)
+	at edu.sjtu.stap.deadlock.sample.Deadlocker.foo(Deadlocker.java:39)
 	- waiting to lock <0x00000000eae56858> (a java.lang.Object)
-	- locked <0x00000000eae56840> (a edu.sjtu.stap.checkmate.sample.Deadlocker)
-	at edu.sjtu.stap.checkmate.sample.Deadlocker.doSomething(Deadlocker.java:22)
-	at edu.sjtu.stap.checkmate.sample.Deadlocker$1.run(Deadlocker.java:57)
+	- locked <0x00000000eae56840> (a edu.sjtu.stap.deadlock.sample.Deadlocker)
+	at edu.sjtu.stap.deadlock.sample.Deadlocker.doSomething(Deadlocker.java:22)
+	at edu.sjtu.stap.deadlock.sample.Deadlocker$1.run(Deadlocker.java:57)
 	at java.lang.Thread.run(Unknown Source)
 
 Found 1 deadlock.

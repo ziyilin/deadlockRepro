@@ -17,7 +17,12 @@ import org.jgrapht.graph.DefaultEdge;
 import program.analysis.IntraproceduralBuilder;
 import soot.SootMethod;
 import soot.Unit;
+import soot.ValueBox;
+import soot.jimple.internal.JAssignStmt;
+import soot.jimple.internal.JEnterMonitorStmt;
+import soot.jimple.internal.JExitMonitorStmt;
 import soot.jimple.internal.JInvokeStmt;
+import soot.jimple.internal.JVirtualInvokeExpr;
 import soot.tagkit.LineNumberTag;
 import soot.toolkits.graph.UnitGraph;
 import thread.info.Site;
@@ -25,8 +30,10 @@ import thread.info.ThreadInfo;
 import cfg.CFGNode;
 import cfg.CallNode;
 import cfg.EnterNode;
+import cfg.LockNode;
 import cfg.NormalNode;
 import cfg.StmtNode;
+import cfg.UnlockNode;
 
 public class CFGBuilder {
 	private static final String BUILDER_INI = "builder.ini";
@@ -104,10 +111,8 @@ public class CFGBuilder {
 						if (lnt.getLineNumber() == currSite.getLineNumber()) {
 							// Site in the stack trace is found here
 							currUnit = u;
-							if (u instanceof JInvokeStmt)
-								traceNode = new CallNode(u);
-							else
-								traceNode = new NormalNode(u);
+							traceNode=createStmtNode(u);
+							
 							break;
 						}
 					}
@@ -122,11 +127,8 @@ public class CFGBuilder {
 						// CFG
 						if (preds.size() == 0) {
 							// link the enterNode to the head of the CFG
-							if (u instanceof JInvokeStmt)
-								ti.getCfg().addEdge(enterNode, new CallNode(u));
-							else
-								ti.getCfg().addEdge(enterNode,
-										new NormalNode(u));
+							StmtNode newNode=createStmtNode(u);
+							ti.getCfg().addEdge(enterNode, newNode);							
 						}
 					}
 					// Second, link nodes without predecessors to the currNode
@@ -137,18 +139,13 @@ public class CFGBuilder {
 						worklist.remove(0);
 						List<Unit> preds = ug.getPredsOf(currUnit);
 						worklist.addAll(preds);
-						if (currUnit instanceof JInvokeStmt) {
-							currNode = new CallNode(currUnit);
-						} else {
-							currNode = new NormalNode(currUnit);
-						}
+						
+						currNode=createStmtNode(currUnit);
+						
 						for (Unit p : preds) {
 							StmtNode predNode = null;
-							if (p instanceof JInvokeStmt) {
-								predNode = new CallNode(p);
-							} else {
-								predNode = new NormalNode(p);
-							}
+							predNode = createStmtNode(p);
+
 							ti.getCfg().addEdge(predNode, currNode);
 						}
 					}
@@ -175,7 +172,33 @@ public class CFGBuilder {
 
 		return g;
 	}
-
+	private StmtNode createStmtNode(Unit u){
+		StmtNode traceNode=null;
+		
+		if (u instanceof JInvokeStmt){
+			
+			traceNode = new CallNode(u);
+		
+		}else if(u instanceof JAssignStmt){
+			
+			if(((JAssignStmt) u).containsInvokeExpr())
+				traceNode = new CallNode(u);
+			else	
+				traceNode = new NormalNode(u);
+			
+		}
+		else if(u instanceof JEnterMonitorStmt){
+			traceNode = new LockNode(u);
+		}
+		else if(u instanceof JExitMonitorStmt){
+			traceNode = new UnlockNode(u);
+		}
+		else{
+			traceNode = new NormalNode(u);
+		}
+		
+		return traceNode;
+	}
 	public String getDumpFilePath() {
 		return dumpFilePath;
 	}

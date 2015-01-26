@@ -127,6 +127,8 @@ public class IntraproceduralBuilder {
 					"-keep-line-number",
 //					"-print-tags-in-output",
 					"-via-shimple",
+//					"-p","wstp","enabled:true",
+					
 					"-p","jtp","enabled:true",
 					"-p", "jtp.bcfg","on",
 					"-src-prec","java",
@@ -169,7 +171,7 @@ public class IntraproceduralBuilder {
 													s.setMethod(sMethod);
 												}
 												else if(!s.getMethod().equals(sMethod)){
-													System.err.println("Exception found: Duplicate settings of site are different");
+													System.err.println("Exception found: Duplicate settings of sites are different");
 												}
 												break Site;
 											}

@@ -25,11 +25,11 @@ import cfg.CFGNode;
 import cfg.builder.CFGBuilder;
 
 /**
- * A demo applet that shows how to use JGraph to visualize JGraphT graphs.
+ * An applet that shows how to use JGraph to visualize control flow graphs.
  *
- * @author Barak Naveh
+ * @author Derrick Shaw
  *
- * @since Aug 3, 2003
+ * @since Dec 27, 2014
  */
 public class CFGViewer extends JApplet {
 	private static final Color DEFAULT_BG_COLOR = Color.decode("#FAFBFF");
@@ -102,20 +102,23 @@ public class CFGViewer extends JApplet {
 
 		// position vertices nicely within JGraph component
 
-		Integer x = 130, y = 40;
-
+		Integer x=0,y=0;
+		Integer max = 0;
+		Integer count=0;
 		// ThreadInfo[] ta=(ThreadInfo[]) .toArray();
 		for (ThreadInfo ti : cfgb.threadInfoCollection) {
+			count = count + 1;
 			Stack<CFGNode> stack = new Stack<CFGNode>();
 			Set<CFGNode> visited = new HashSet<CFGNode>();
 			CFGNode curr = ti.getCfg().getHead().get(0);
 			visited.add(curr);
 			stack.push(curr);
-			Integer max = -1;
+			x = 40+x+max*13;
+			y = 40;
 			while (stack.size() > 0) {
 				List<CFGNode> temp = new LinkedList<CFGNode>();
 				temp.addAll(stack);
-				x = 40;
+				
 
 				while (stack.size() != 0) {
 					CFGNode p = stack.pop();
@@ -136,7 +139,7 @@ public class CFGViewer extends JApplet {
 					}
 				}
 			}
-			x = x + max * 20 + 100;
+//			x = x + max * 20 + 100;
 		}
 		/*
 		 * positionVertexAt( "v2", 60, 200 ); positionVertexAt( "v3", 310, 230
@@ -145,7 +148,7 @@ public class CFGViewer extends JApplet {
 
 		// that's all there is to it!...
 		DEFAULT_SIZE.height = y;
-		DEFAULT_SIZE.width = x;
+		DEFAULT_SIZE.width = x*count;
 		resize(DEFAULT_SIZE);
 
 	}
@@ -171,15 +174,16 @@ public class CFGViewer extends JApplet {
 	private void positionVertexAt(Object vertex, int x, int y) {
 		DefaultGraphCell cell = m_jgAdapter.getVertexCell(vertex);
 		Map attr = cell.getAttributes();
-
+	
 		Rectangle2D b = GraphConstants.getBounds(attr);
-		b.setRect(x, y, vertex.toString().length() * 15, 35);
+		b.setRect(x, y, vertex.toString().length()*12, 35);
 
 		GraphConstants.setBounds(attr, b);
 
 		Font font = GraphConstants.getFont(attr);
 		float size = 20;
 		font = font.deriveFont(size);
+		font = font.deriveFont(Font.BOLD);
 		GraphConstants.setFont(attr, font);
 
 		Map cellAttr = new HashMap();

@@ -1,7 +1,7 @@
 package cfg;
 
 public abstract class CFGNode {
-	public static enum Type {Normal, Call, Return, Enter, Exit};
+	public static enum Type {Normal, Call, Return, Enter, Exit, Lock, Unlock};
 	protected String type;
 /*	private Integer horizontalDistance;//x
 	private Integer verticalDistance;//y
@@ -21,6 +21,12 @@ public abstract class CFGNode {
 			break;
 		case Exit:
 			setType("EXIT");
+			break;
+		case Lock:
+			setType("LOCK");
+			break;
+		case Unlock:
+			setType("UNLOCK");
 			break;
 		}
 	}
