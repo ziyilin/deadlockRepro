@@ -13,7 +13,7 @@ import soot.toolkits.graph.UnitGraph;
  *
  * @since Dec 8, 2014
  */
-public class Site {
+public class SiteInfo {
 	private String packageName;
 	private String className;
 	private String methodName;
@@ -22,7 +22,7 @@ public class Site {
 	private UnitGraph unitGraph;
 	private Stack<ObjectInfo> objectReference;
 	
-	public Site(String element) {
+	public SiteInfo(String element) {
 		
 		Integer index=0;
 		String siteInfo="";
