@@ -127,15 +127,23 @@ public class CFGBuilder {
 				}
 				
 				// Trace the CFG node at the site of the reported line number 
+				SootMethod callee = null;
+				if(i>0)
+					callee=stackTrace.get(i-1).getMethod();
 				for (Unit u : ug) {
 					LineNumberTag lnt = (LineNumberTag) u.getTag("LineNumberTag");
-					// If the line number of the reported site and the CFG unit
-					// matches, the traced unit will be treated as a start point
+					// If the line number of the reported site and that of the CFG unit
+					//  matches, and the invocation statement of the reported site and
+					// that of the CFG unit matches, then the unit will be a trace node
 					if (lnt.getLineNumber() == currSite.getLineNumber()) {
 						// Site in the form of Jimple statement:
 						traceUnit = u;
 						// Site in the form of CFG node:
 						traceNode=createStmtNode(u);
+						if(callee!=null){
+							if(u.toString().contains(callee.getSignature()))
+								break;
+						}
 					}
 				}
 
