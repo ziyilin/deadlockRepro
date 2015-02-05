@@ -181,98 +181,100 @@ public class CFGBuilder {
 						ti.getCfg().addEdge(predNode, currNode);
 					}
 				}
-				
-				// Third, visit each call node without enter node in the successors
-				do{
-					
-					Map<CFGNode,List<CFGNode>> edges=ti.getCfg().getEdges();
-					Set<CFGNode> callNodesWithoutEnter=new HashSet<CFGNode>();
-					for(CFGNode fNode:edges.keySet()){
-						if(fNode.getType().contains("CALL")){
-							List<CFGNode> tSet=edges.get(fNode);
-							Boolean hasEnter=false;
-							for(CFGNode tNode:tSet){
-								if(tNode.getType().equals("ENTER")){
-									hasEnter=true;
-									break;
-								}
-							}
-							if(!hasEnter){
-								callNodesWithoutEnter.add(fNode);
-							}
-						}
-					}
-					if(callNodesWithoutEnter.size()==0)
-						break;
-					for(CFGNode fNode:callNodesWithoutEnter){
-						List<CFGNode> tSet=edges.get(fNode);
-						// Find the callees
-						Map<SootMethod, UnitGraph> m2cfg=IntraproceduralBuilder.methodToCFG;
-						Boolean findCallee=false;
-						for(SootMethod met:m2cfg.keySet()){
-							if(fNode.toString().contains(met.getSignature())){
-								findCallee=true;
-								// Add the found callee from one to five
-								SootMethod callee=met;
-								UnitGraph cfg = m2cfg.get(callee);
-								EnterNode calleeEnter = new EnterNode(callee);
-								ExitNode calleeExit = new ExitNode(callee);
-								CallNode callNode=(CallNode) fNode;
-								ReturnNode returnNode=new ReturnNode(callNode.getStmt());
-								// First, add the edges between return node and the call node's old successors
-								for(CFGNode tNode:tSet){
-									ti.getCfg().addEdge(returnNode, tNode);
-								}
-								// Second, remove the edge between call node and its old successors						
-								tSet.clear();
-								
-								// Third, add the edge between call node and enter node
-								ti.getCfg().addEdge(callNode, calleeEnter);
-								
-								// Fourth, add the edge between exit node and return node
-								ti.getCfg().addEdge(calleeExit, returnNode);
-								
-								// Fifth, add the path between enter node and exit node of the callee method
-								for(Unit u:cfg){
-									if(cfg.getPredsOf(u).size()==0){
-										StmtNode head=createStmtNode(u);
-										ti.getCfg().addEdge(calleeEnter, head);
-										
-										List<Unit> wlist=new LinkedList<Unit>();
-										wlist.add(u);
-										while(wlist.size()>0){
-											Unit curr=wlist.get(0);
-											wlist.remove(0);
-											List<Unit> succs=cfg.getSuccsOf(curr);
-											for(Unit succ:succs){
-												ti.getCfg().addEdge(createStmtNode(curr),createStmtNode(succ));
-											}
-											wlist.addAll(succs);
-											
-										}
-										
-									}
-								}
-								for(Unit u:cfg){
-									if(cfg.getSuccsOf(u).size()==0){
-										StmtNode tail=createStmtNode(u);
-										ti.getCfg().addEdge(tail, calleeExit);
-									}
-								}
-								
-							}
-						}
-						if(!findCallee){
-							fNode.setType("NORMAL");
-							System.err.println(fNode.toString()+" has no callee");
-						}
-					}
-					
-					
-				}while(true);
-				
-				
 			}
+			
+			// Visit each call node without enter node in the successors
+			System.out.print("");
+			do{
+				
+				Map<CFGNode,List<CFGNode>> edges=ti.getCfg().getEdges();
+				Set<CFGNode> callNodesWithoutEnter=new HashSet<CFGNode>();
+				for(CFGNode fNode:edges.keySet()){
+					if(fNode.getType().contains("CALL")){
+						List<CFGNode> tSet=edges.get(fNode);
+						Boolean hasEnter=false;
+						for(CFGNode tNode:tSet){
+							if(tNode.getType().equals("ENTER")){
+								hasEnter=true;
+								break;
+							}
+						}
+						if(!hasEnter){
+							callNodesWithoutEnter.add(fNode);
+						}
+					}
+				}
+				if(callNodesWithoutEnter.size()==0)
+					break;
+				for(CFGNode fNode:callNodesWithoutEnter){
+					List<CFGNode> tSet=edges.get(fNode);
+					// Find the callees
+					Map<SootMethod, UnitGraph> m2cfg=IntraproceduralBuilder.methodToCFG;
+					Boolean findCallee=false;
+					for(SootMethod met:m2cfg.keySet()){
+						if(fNode.toString().contains(met.getSignature())){
+							findCallee=true;
+							// Add the found callee from one to five
+							SootMethod callee=met;
+							UnitGraph cfg = m2cfg.get(callee);
+							EnterNode calleeEnter = new EnterNode(callee);
+							ExitNode calleeExit = new ExitNode(callee);
+							CallNode callNode=(CallNode) fNode;
+							ReturnNode returnNode=new ReturnNode(callNode.getStmt());
+							// First, add the edges between return node and the call node's old successors
+							for(CFGNode tNode:tSet){
+								ti.getCfg().addEdge(returnNode, tNode);
+							}
+							// Second, remove the edge between call node and its old successors						
+							tSet.clear();
+							
+							// Third, add the edge between call node and enter node
+							ti.getCfg().addEdge(callNode, calleeEnter);
+							
+							// Fourth, add the edge between exit node and return node
+							ti.getCfg().addEdge(calleeExit, returnNode);
+							
+							// Fifth, add the path between enter node and exit node of the callee method
+							for(Unit u:cfg){
+								if(cfg.getPredsOf(u).size()==0){
+									StmtNode head=createStmtNode(u);
+									ti.getCfg().addEdge(calleeEnter, head);
+									
+									List<Unit> wlist=new LinkedList<Unit>();
+									wlist.add(u);
+									Set<Unit> calleeVisited=new HashSet<Unit>();
+									while(wlist.size()>0){
+										Unit curr=wlist.get(0);
+										wlist.remove(0);										
+									    if(!calleeVisited.add(curr))
+									    	continue;
+										List<Unit> succs=cfg.getSuccsOf(curr);
+										for(Unit succ:succs){
+											ti.getCfg().addEdge(createStmtNode(curr),createStmtNode(succ));
+										}
+										wlist.addAll(succs);
+										
+									}
+									
+								}
+							}
+							for(Unit u:cfg){
+								if(cfg.getSuccsOf(u).size()==0){
+									StmtNode tail=createStmtNode(u);
+									ti.getCfg().addEdge(tail, calleeExit);
+								}
+							}
+							
+						}
+					}
+					if(!findCallee){
+						fNode.setType("NORMAL");
+						System.err.println(fNode.toString()+" has no callee");
+					}
+				}
+				
+				
+			}while(true);
 		}
 
 		
