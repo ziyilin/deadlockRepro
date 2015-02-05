@@ -48,8 +48,8 @@ public class SiteInfo {
 		
 		if(position.contains(":")){
 			String[] posAry=position.split(":");
-			String[] javaFile=posAry[0].trim().split("\\.");
-			setClassName(javaFile[0].trim());
+//			String[] javaFile=posAry[0].trim().split("\\.");
+//			setClassName(javaFile[0].trim());
 			setLineNumber(Integer.parseInt(posAry[1].trim()));
 		}
 	}

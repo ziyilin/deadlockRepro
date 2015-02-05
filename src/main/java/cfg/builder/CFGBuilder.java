@@ -136,8 +136,6 @@ public class CFGBuilder {
 						traceUnit = u;
 						// Site in the form of CFG node:
 						traceNode=createStmtNode(u);
-						
-						break;
 					}
 				}
 
@@ -184,7 +182,7 @@ public class CFGBuilder {
 			}
 			
 			// Visit each call node without enter node in the successors
-			System.out.print("");
+
 			do{
 				
 				Map<CFGNode,List<CFGNode>> edges=ti.getCfg().getEdges();
