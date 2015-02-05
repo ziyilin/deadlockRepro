@@ -3,6 +3,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +24,7 @@ import thread.info.SiteInfo;
 import thread.info.ThreadInfo;
 
 public class IntraproceduralBuilder {
-
+	public static Map<SootMethod,UnitGraph> methodToCFG=new HashMap<SootMethod,UnitGraph>();
 	public static Collection<ThreadInfo> Main(String dumpFile,String mainClass)
 			throws FileNotFoundException{
 		
@@ -131,6 +132,10 @@ public class IntraproceduralBuilder {
 							String methodName = sMethod.getName();
 							String classPath = sClass.getName();
 							String clsMetInfo = classPath + "." + methodName;
+							if (sMethod.hasActiveBody() == false)
+								sMethod.retrieveActiveBody();
+							UnitGraph cfg = new ExceptionalUnitGraph(body);
+							methodToCFG.put(sMethod, cfg);
 							
 							for(ThreadInfo ti:threadInfoCollection){
 								List<SiteInfo> sl=ti.getSite();
@@ -147,12 +152,10 @@ public class IntraproceduralBuilder {
 										for(Unit u:uChain){
 											LineNumberTag lnt = (LineNumberTag)u.getTag("LineNumberTag");
 											if(lineNumber.equals(lnt.getLineNumber())){
-												// Site is found here
-												if (sMethod.hasActiveBody() == false)
-													sMethod.retrieveActiveBody();
+											
 												// Set SootMethod and UnitGraph for the site
 												if(s.getUnitGraph()==null){
-													UnitGraph cfg = new ExceptionalUnitGraph(body);
+//													UnitGraph cfg = new ExceptionalUnitGraph(body);
 													s.setUnitGraph(cfg);
 													s.setMethod(sMethod);
 												}
