@@ -22,7 +22,7 @@ public class Deadlocker {
 		foo();
 	}
 
-	public void doAnotherThing(int value) {switch(value){case 1:;break;case 2:break;case 3:break;default:break;}if(value==0){value=value+1;}else{value=value-1;}
+	public void doAnotherThing(int value) {
 		if (new Noise().isEvent(value)) {  //This input matters
 			synchronized (o) {
 				//1
