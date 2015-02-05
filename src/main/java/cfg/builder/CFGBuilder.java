@@ -17,23 +17,21 @@ import org.jgrapht.graph.DefaultEdge;
 import program.analysis.IntraproceduralBuilder;
 import soot.SootMethod;
 import soot.Unit;
-import soot.ValueBox;
 import soot.jimple.internal.JAssignStmt;
 import soot.jimple.internal.JEnterMonitorStmt;
 import soot.jimple.internal.JExitMonitorStmt;
 import soot.jimple.internal.JInvokeStmt;
-import soot.jimple.internal.JVirtualInvokeExpr;
 import soot.tagkit.LineNumberTag;
 import soot.toolkits.graph.UnitGraph;
-import thread.info.Site;
+import thread.info.SiteInfo;
 import thread.info.ThreadInfo;
-import cfg.CFGNode;
-import cfg.CallNode;
-import cfg.EnterNode;
-import cfg.LockNode;
-import cfg.NormalNode;
-import cfg.StmtNode;
-import cfg.UnlockNode;
+import cfg.info.CFGNode;
+import cfg.info.CallNode;
+import cfg.info.EnterNode;
+import cfg.info.LockNode;
+import cfg.info.NormalNode;
+import cfg.info.StmtNode;
+import cfg.info.UnlockNode;
 
 public class CFGBuilder {
 	private static final String BUILDER_INI = "builder.ini";
@@ -66,7 +64,7 @@ public class CFGBuilder {
 		System.out.println("Analyze programs:" + getMainClassPath());
 	}
 
-	public Graph build(Graph<CFGNode, DefaultEdge> g) {
+	public Graph<CFGNode, DefaultEdge> build(Graph<CFGNode, DefaultEdge> g) {
 		try {
 			String mainClass = getMainClassPath();
 			String threadDump = getDumpFilePath();
@@ -77,47 +75,67 @@ public class CFGBuilder {
 
 			for (ThreadInfo ti : threadInfoCollection) {
 				System.out.println(ti.getThreadName());
-				List<Site> stackTrace = ti.getSite();
+				List<SiteInfo> stackTrace = ti.getSite();
 				Integer stackDepth = stackTrace.size();
 				StmtNode traceNode = null;
-				StmtNode currNode = null;
-				Unit currUnit = null;
-
+				Unit traceUnit = null;
+				
+				// Visit all sites from the top level caller to the bottom level callee
 				for (Integer i = stackDepth - 1; i >= 0; i = i - 1) {
-					Site currSite = stackTrace.get(i);
+					SiteInfo currSite = stackTrace.get(i);
 					if (currSite.getUnitGraph() == null)
 						continue;
 					SootMethod method = currSite.getMethod();
 					UnitGraph ug = currSite.getUnitGraph();
 
 					EnterNode enterNode = new EnterNode(method);
+					
+					// Define a head CFG node of the current thread
 					if (traceNode == null)
 						ti.getCfg().addHead(enterNode);
-					if (traceNode != null && traceNode.getType().equals("CALL")) {
-
-						CallNode callNode = (CallNode) traceNode;
-						// Check if the call statement and the callee method
-						// matches
-						if (callNode.getStmt().toString()
-								.contains(method.getSignature()))
-							// Add an inter-procedural edge to the CFG of the
-							// current thread
-							ti.getCfg().addEdge(callNode, enterNode);
+					
+					if (traceNode != null) {
+						// The trace node found in the caller will be linked to 
+						// the enter node of the current method after redundant check
+						if( traceNode.getType().equals("CALL")){
+							
+							CallNode callNode = (CallNode) traceNode;
+							// Check if the call statement and the callee method matches
+							if (callNode.getStmt().toString().contains(
+									method.getSignature())){
+								// Add an inter-procedural edge to the CFG of the
+								// current thread
+								
+								ti.getCfg().addEdge(callNode, enterNode);
+								
+								String callType="CALL";
+								if(method.isStatic()){
+									callType = "STATIC "+callType;
+								}
+								if(method.isSynchronized()){
+									callType = "SYNC "+callType;
+								}
+								callNode.setType(callType);
+							}
+						}
 					}
-
+					
+					// Trace the CFG node at the site of the reported line number 
 					for (Unit u : ug) {
-						LineNumberTag lnt = (LineNumberTag) u
-								.getTag("LineNumberTag");
+						LineNumberTag lnt = (LineNumberTag) u.getTag("LineNumberTag");
+						// If the line number of the reported site and the CFG unit
+						// matches, the traced unit will be treated as a start point
 						if (lnt.getLineNumber() == currSite.getLineNumber()) {
-							// Site in the stack trace is found here
-							currUnit = u;
+							// Site in the form of Jimple statement:
+							traceUnit = u;
+							// Site in the form of CFG node:
 							traceNode=createStmtNode(u);
 							
 							break;
 						}
 					}
 
-					// Add intra-procedural paths from enterNode to currNode
+					// Add intra-procedural paths from enterNode to traceNode
 					// First, link enterNode to nodes without predecessors
 					for (Unit u : ug) {
 
@@ -131,17 +149,25 @@ public class CFGBuilder {
 							ti.getCfg().addEdge(enterNode, newNode);							
 						}
 					}
-					// Second, link nodes without predecessors to the currNode
+					
+					// Second, link nodes without predecessors to traceNode
+					// The traced unit is treated as a start point 
 					List<Unit> worklist = new LinkedList<Unit>();
-					worklist.add(currUnit);
+					worklist.add(traceUnit);
+					
+					Unit currUnit = null;
+					StmtNode currNode = null;
+					Integer index=0;
 					while (worklist.size() > 0) {
 						currUnit = worklist.get(0);
 						worklist.remove(0);
 						List<Unit> preds = ug.getPredsOf(currUnit);
 						worklist.addAll(preds);
-						
-						currNode=createStmtNode(currUnit);
-						
+						if(index>0)
+							currNode=createStmtNode(currUnit);
+						else
+							currNode=traceNode;
+						index = index + 1;
 						for (Unit p : preds) {
 							StmtNode predNode = null;
 							predNode = createStmtNode(p);
