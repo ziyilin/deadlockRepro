@@ -7,17 +7,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import thread.info.ObjectInfo;
-import thread.info.Site;
+import thread.info.SiteInfo;
 import thread.info.ThreadInfo;
 
 public class ThreadBuilder {
-	public static void main(String[] args){
-		testCase1();
-	}
-	private static void testCase1(){
-//		apply("dump.txt");
-		apply("src\\edu\\sjtu\\stap\\checkmate\\sample\\fulldump");
-	}
+	
 	public static Map<Integer,ThreadInfo> apply(String dumpfile){
 		String content=read(dumpfile);//;read("dump.txt");//"src\\edu\\sjtu\\stap\\checkmate\\sample\\fulldump"
 		Integer begin=content.indexOf("Java stack information for the threads listed above")+1;
@@ -71,7 +65,7 @@ public class ThreadBuilder {
 				
 				if(element.contains("-")){
 					String[] eleAry=element.split("-");
-					Site newSite=new Site(eleAry[0].trim());
+					SiteInfo newSite=new SiteInfo(eleAry[0].trim());
 					tInfo.pushSite(newSite);
 					for(Integer lockIndex=1;lockIndex<eleAry.length;lockIndex++){//从1号下标开始，0号下标是site
 						String detail=eleAry[lockIndex].trim();
@@ -104,7 +98,7 @@ public class ThreadBuilder {
 						newSite.pushObjectReference(new ObjectInfo(objectType,objectAddress,s));
 					}
 				}else{
-					tInfo.pushSite(new Site(element));
+					tInfo.pushSite(new SiteInfo(element));
 				}
 				
 			}

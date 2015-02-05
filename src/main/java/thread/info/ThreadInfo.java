@@ -2,7 +2,8 @@ package thread.info;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
-import cfg.CFG;
+
+import cfg.info.CFG;
 
 /** 
  * Class ThreadInfo constructs a name of thread and a list of site information.
@@ -13,17 +14,17 @@ import cfg.CFG;
  */
 public class ThreadInfo {
 	private String threadName;
-	private List<Site> site;
+	private List<SiteInfo> site;
 	private CFG cfg;
 	public ThreadInfo(String name){
 		setThreadName(name);
-		site=new LinkedList<Site>();
+		site=new LinkedList<SiteInfo>();
 		setCfg(new CFG());
 	}
 	public String toString(){
 		String result="";
 		result+="\""+threadName+"\":\n";
-		for(Site s:site){
+		for(SiteInfo s:site){
 			result+=s.toString();
 			result+="\n";
 			Stack<ObjectInfo> objectStack=s.getObjectReference();
@@ -42,10 +43,10 @@ public class ThreadInfo {
 	public void setThreadName(String threadName) {
 		this.threadName = threadName;
 	}
-	public void pushSite(Site s){
+	public void pushSite(SiteInfo s){
 		site.add(s);
 	}
-	public List<Site> getSite(){
+	public List<SiteInfo> getSite(){
 		return site;
 	}
 	public CFG getCfg() {
