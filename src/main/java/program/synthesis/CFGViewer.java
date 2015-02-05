@@ -32,68 +32,23 @@ import cfg.info.CFGNode;
  * @since Dec 27, 2014
  */
 public class CFGViewer extends JApplet {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private static final Color DEFAULT_BG_COLOR = Color.decode("#FAFBFF");
 	private static final Dimension DEFAULT_SIZE = new Dimension(2000, 6400);
-
-	//
 	private JGraphModelAdapter<CFGNode, DefaultEdge> m_jgAdapter;
-
-	/**
-	 * @see java.applet.Applet#init().
-	 */
-	public void init() {/*
-						 * // create a JGraphT graph
-						 * ListenableGraph<CFGNode,DefaultEdge> g = new
-						 * ListenableDirectedGraph<CFGNode,DefaultEdge>(
-						 * DefaultEdge.class );
-						 * 
-						 * // create a visualization using JGraph, via an
-						 * adapter m_jgAdapter = new JGraphModelAdapter( g );
-						 * 
-						 * JGraph jgraph = new JGraph( m_jgAdapter );
-						 * 
-						 * adjustDisplaySettings( jgraph );
-						 * getContentPane().add( jgraph );
-						 * 
-						 * // resize( DEFAULT_SIZE ); getContentPane().add( new
-						 * JScrollPane(jgraph));
-						 * 
-						 * CFGBuilder cfgb=new CFGBuilder();
-						 * 
-						 * GInfo.v().dumpFile="..\\";
-						 * GInfo.v().confPrefix="..\\"; cfgb.build(g);
-						 */
+	public void init() {
 		// create a JGraphT graph
-
 		ListenableGraph<CFGNode, DefaultEdge> g = new ListenableDirectedGraph<CFGNode, DefaultEdge>(DefaultEdge.class);
-
 		// create a visualization using JGraph, via an adapter
 		m_jgAdapter = new JGraphModelAdapter<CFGNode, DefaultEdge>(g);
-
 		JGraph jgraph = new JGraph(m_jgAdapter);
-
 		adjustDisplaySettings(jgraph);
 		getContentPane().add(jgraph);
-		// DEFAULT_SIZE.width=x;
-		// DEFAULT_SIZE.height=y;
-
 		getContentPane().add(new JScrollPane(jgraph));
-		// add some sample data (graph manipulated via JGraphT)
-		/*
-		 * g.addVertex( "v1" ); g.addVertex( "v2" ); g.addVertex( "v3333" );
-		 * g.addVertex( "v4" );
-		 * 
-		 * g.addEdge( "v1", "v2" ); g.addEdge( "v1", "v3333" ); g.addEdge( "v2",
-		 * "v3333" ); g.addEdge( "v2", "v4" );
-		 */
+		// build the cfg
 		CFGBuilder cfgb = new CFGBuilder();
 		cfgb.build(g);
-
-		// Disable the label of edge
+		// remove the label of edge
 		Set<DefaultEdge> eset = g.edgeSet();
 		for (DefaultEdge e : eset) {
 			DefaultGraphCell cell = m_jgAdapter.getEdgeCell(e);
@@ -103,13 +58,14 @@ public class CFGViewer extends JApplet {
 			cellAttr.put(cell, attr);
 			m_jgAdapter.edit(cellAttr, null, null, null);
 		}
-
 		// position vertices nicely within JGraph component
-
 		Integer x=0,y=0;
-		Integer max = 0;
+		Integer maxWidth = 0;
+		Integer xMax = 0;
 		Integer count=0;
-		// ThreadInfo[] ta=(ThreadInfo[]) .toArray();
+		Integer xStart=40;
+		Integer yStart=40;
+		Integer yStep=30;
 		for (ThreadInfo ti : cfgb.threadInfoCollection) {
 			count = count + 1;
 			Stack<CFGNode> stack = new Stack<CFGNode>();
@@ -117,22 +73,26 @@ public class CFGViewer extends JApplet {
 			CFGNode curr = ti.getCfg().getHead().get(0);
 			visited.add(curr);
 			stack.push(curr);
-			x = 40+x+max*13;
-			y = 40;
+			x = xStart+x+maxWidth;
+			y = yStart;
 			while (stack.size() > 0) {
 				List<CFGNode> temp = new LinkedList<CFGNode>();
 				temp.addAll(stack);
-				
-
+			
+				Integer xTemp=x;
 				while (stack.size() != 0) {
 					CFGNode p = stack.pop();
-					positionVertexAt(p, x, y);
-					if (p.toString().length() > max)
-						max = p.toString().length();
-
-					y = y + 70;
+					Integer width=positionVertexAt(p, x, y);
+					x=x+width+30;
+					if (width > maxWidth)
+						maxWidth = width;
+					if(x>xMax)
+						xMax=x;
+					y = y + yStep;
 				}
-				y = y + 70;
+				x=xTemp;
+				
+				y = y + yStep;
 				for (CFGNode t : temp) {
 					for (Object o : g.edgesOf(t)) {
 						DefaultEdge e = (DefaultEdge) o;
@@ -143,55 +103,50 @@ public class CFGViewer extends JApplet {
 					}
 				}
 			}
-//			x = x + max * 20 + 100;
 		}
-		/*
-		 * positionVertexAt( "v2", 60, 200 ); positionVertexAt( "v3", 310, 230
-		 * ); positionVertexAt( "v4", 380, 70 );
-		 */
 
-		// that's all there is to it!...
 		DEFAULT_SIZE.height = y;
-		DEFAULT_SIZE.width = x*count;
+		DEFAULT_SIZE.width = xMax;
 		resize(DEFAULT_SIZE);
 
 	}
 
 	private void adjustDisplaySettings(JGraph jg) {
 		jg.setPreferredSize(DEFAULT_SIZE);
-
 		Color c = DEFAULT_BG_COLOR;
 		String colorStr = null;
-
 		try {
 			colorStr = getParameter("bgcolor");
 		} catch (Exception e) {
 		}
-
 		if (colorStr != null) {
 			c = Color.decode(colorStr);
 		}
-
 		jg.setBackground(c);
 	}
-
-	private void positionVertexAt(Object vertex, int x, int y) {
+	
+	private Integer positionVertexAt(Object vertex, int x, int y) {
 		DefaultGraphCell cell = m_jgAdapter.getVertexCell(vertex);
 		Map attr = cell.getAttributes();
-	
+		Integer width=vertex.toString().length()*12;
+		
 		Rectangle2D b = GraphConstants.getBounds(attr);
-		b.setRect(x, y, vertex.toString().length()*12, 35);
-
+		b.setRect(x, y, width, 35);
 		GraphConstants.setBounds(attr, b);
-
+	
 		Font font = GraphConstants.getFont(attr);
-		float size = 20;
+		float size=20;
 		font = font.deriveFont(size);
-		font = font.deriveFont(Font.BOLD);
 		GraphConstants.setFont(attr, font);
+		
+		String vLabel=vertex.toString();
+		String tPart=vLabel.split("\\.")[0];
+		if(tPart.contains("LOCK")||tPart.contains("SYNC"))
+			GraphConstants.setBackground(attr, Color.gray);
 
 		Map cellAttr = new HashMap();
 		cellAttr.put(cell, attr);
 		m_jgAdapter.edit(cellAttr, null, null, null);
+		return width;
 	}
 }
