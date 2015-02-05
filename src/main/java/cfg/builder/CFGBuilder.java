@@ -133,17 +133,14 @@ public class CFGBuilder {
 				for (Unit u : ug) {
 					LineNumberTag lnt = (LineNumberTag) u.getTag("LineNumberTag");
 					// If the line number of the reported site and that of the CFG unit
-					//  matches, and the invocation statement of the reported site and
-					// that of the CFG unit matches, then the unit will be a trace node
+					//  matches and the invocation statement of the reported site and
+					// that of the CFG unit matches, the unit will be a trace node to start from
 					if (lnt.getLineNumber() == currSite.getLineNumber()) {
-						// Site in the form of Jimple statement:
 						traceUnit = u;
-						// Site in the form of CFG node:
-						traceNode=createStmtNode(u);
-						if(callee!=null){
+						traceNode = createStmtNode(u);
+						if(callee!=null)
 							if(u.toString().contains(callee.getSignature()))
-								break;
-						}
+								break;	
 					}
 				}
 
@@ -153,8 +150,7 @@ public class CFGBuilder {
 
 					List<Unit> preds = ug.getPredsOf(u);
 
-					// The node without predecessors is a unique head of the
-					// CFG
+					// The node without predecessors is a unique head of the CFG
 					if (preds.size() == 0) {
 						// link the enterNode to the head of the CFG
 						StmtNode newNode=createStmtNode(u);
