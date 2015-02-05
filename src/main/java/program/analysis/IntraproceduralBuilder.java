@@ -1,27 +1,15 @@
 package program.analysis;
 import java.io.FileNotFoundException;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-
-import org.jgrapht.Graph;
-import org.jgrapht.graph.DefaultEdge;
-
-import cfg.CFGNode;
-
 
 import soot.Body;
 import soot.BodyTransformer;
+import soot.G;
 import soot.PackManager;
-import soot.Scene;
-import soot.SceneTransformer;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.Transform;
@@ -31,25 +19,22 @@ import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.graph.UnitGraph;
 import soot.util.Chain;
 import thread.builder.ThreadBuilder;
-import thread.info.Site;
+import thread.info.SiteInfo;
 import thread.info.ThreadInfo;
 
 public class IntraproceduralBuilder {
-//	private static Map<String,UnitGraph> methToUnitGraph=new HashMap<String,UnitGraph>();	
-	private static Collection<ThreadInfo> threadInfoCollection;
-	
+
 	public static Collection<ThreadInfo> Main(String dumpFile,String mainClass)
 			throws FileNotFoundException{
 		
 		// Process the thread dump to get a structure of thread information
 		Map<Integer,ThreadInfo> threadDump=ThreadBuilder.apply(dumpFile); 
-		threadInfoCollection=threadDump.values();
 		// Run the Soot to get the path of each thread
 		IntraproceduralBuilder b=new IntraproceduralBuilder();
-		b.build(mainClass);
+		Collection<ThreadInfo> threadInfoCollection=b.build(mainClass,threadDump.values());
 		return threadInfoCollection;
 	}
-	public void build(String benchmark){
+	public Collection<ThreadInfo> build(String benchmark,final Collection<ThreadInfo> threadInfoCollection){
 		
 		List<String> argsList = new ArrayList<String>();
 /*		Boolean interProcedural=false;
@@ -119,8 +104,9 @@ public class IntraproceduralBuilder {
 						}
 			}));
 		}
-		else*/
-		{
+		else
+*/		{
+			G.reset();
 			argsList.addAll(Arrays.asList(new String[]{
 					"--app",benchmark,
 					"-allow-phantom-refs" ,
@@ -147,10 +133,10 @@ public class IntraproceduralBuilder {
 							String clsMetInfo = classPath + "." + methodName;
 							
 							for(ThreadInfo ti:threadInfoCollection){
-								List<Site> sl=ti.getSite();
+								List<SiteInfo> sl=ti.getSite();
 								
 								Site:
-								for(Site s:sl){
+								for(SiteInfo s:sl){
 									String methodCompleteName=s.getPackageName()+"."+s.getClassName()+"."+s.getMethodName();
 									
 									if(clsMetInfo.equals(methodCompleteName)){
@@ -186,5 +172,6 @@ public class IntraproceduralBuilder {
 			}));
 		}
 		soot.Main.main(argsList.toArray(new String[0]));
+		return threadInfoCollection;
 	}
 }
