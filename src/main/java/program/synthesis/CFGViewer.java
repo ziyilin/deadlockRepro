@@ -65,7 +65,7 @@ public class CFGViewer extends JApplet {
 		Integer count=0;
 		Integer xStart=40;
 		Integer yStart=40;
-		Integer yStep=30;
+		Integer yStep=60;
 		for (ThreadInfo ti : cfgb.threadInfoCollection) {
 			count = count + 1;
 			Stack<CFGNode> stack = new Stack<CFGNode>();
@@ -88,7 +88,6 @@ public class CFGViewer extends JApplet {
 						maxWidth = width;
 					if(x>xMax)
 						xMax=x;
-					y = y + yStep;
 				}
 				x=xTemp;
 				
