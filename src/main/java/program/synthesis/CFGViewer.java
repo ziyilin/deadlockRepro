@@ -62,6 +62,7 @@ public class CFGViewer extends JApplet {
 		Integer x=0,y=0;
 		Integer maxWidth = 0;
 		Integer xMax = 0;
+		Integer yMax = 0;
 		Integer count=0;
 		Integer xStart=40;
 		Integer yStart=40;
@@ -75,6 +76,7 @@ public class CFGViewer extends JApplet {
 			stack.push(curr);
 			x = xStart+x+maxWidth;
 			y = yStart;
+			
 			while (stack.size() > 0) {
 				List<CFGNode> temp = new LinkedList<CFGNode>();
 				temp.addAll(stack);
@@ -92,6 +94,8 @@ public class CFGViewer extends JApplet {
 				x=xTemp;
 				
 				y = y + yStep;
+				if(y > yMax)
+					yMax = y;
 				for (CFGNode t : temp) {
 					for (Object o : g.edgesOf(t)) {
 						DefaultEdge e = (DefaultEdge) o;
@@ -104,7 +108,7 @@ public class CFGViewer extends JApplet {
 			}
 		}
 
-		DEFAULT_SIZE.height = y;
+		DEFAULT_SIZE.height = yMax;
 		DEFAULT_SIZE.width = xMax;
 		resize(DEFAULT_SIZE);
 
