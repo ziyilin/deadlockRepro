@@ -16,7 +16,6 @@ import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 
 import program.analysis.IntraproceduralBuilder;
-import soot.G;
 import soot.SootMethod;
 import soot.Unit;
 import soot.jimple.internal.JAssignStmt;
@@ -27,7 +26,6 @@ import soot.tagkit.LineNumberTag;
 import soot.toolkits.graph.UnitGraph;
 import thread.info.SiteInfo;
 import thread.info.ThreadInfo;
-import cfg.info.CFG;
 import cfg.info.CFGNode;
 import cfg.info.CallNode;
 import cfg.info.EnterNode;
@@ -192,7 +190,7 @@ public class CFGBuilder {
 				Map<CFGNode,List<CFGNode>> edges=ti.getCfg().getEdges();
 				Set<CFGNode> callNodesWithoutEnter=new HashSet<CFGNode>();
 				for(CFGNode fNode:edges.keySet()){
-					if(fNode.getType().contains("CALL")){
+					if(fNode.getType().equals("CALL")){
 						List<CFGNode> tSet=edges.get(fNode);
 						Boolean hasEnter=false;
 						for(CFGNode tNode:tSet){
@@ -270,8 +268,8 @@ public class CFGBuilder {
 						}
 					}
 					if(!findCallee){
-						fNode.setType("NORMAL");
-						System.err.println(fNode.toString()+" has no callee");
+						fNode.setType("LIB CALL");
+						System.out.println(fNode.toString()+" has no callee");
 					}
 				}
 				
