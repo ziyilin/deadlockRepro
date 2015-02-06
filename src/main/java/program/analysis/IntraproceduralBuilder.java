@@ -15,8 +15,8 @@ import soot.SootClass;
 import soot.SootMethod;
 import soot.Transform;
 import soot.Unit;
+import soot.jbco.util.SimpleExceptionalGraph;
 import soot.tagkit.LineNumberTag;
-import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.graph.UnitGraph;
 import soot.util.Chain;
 import thread.builder.ThreadBuilder;
@@ -134,7 +134,7 @@ public class IntraproceduralBuilder {
 							String clsMetInfo = classPath + "." + methodName;
 							if (sMethod.hasActiveBody() == false)
 								sMethod.retrieveActiveBody();
-							UnitGraph cfg = new ExceptionalUnitGraph(body);
+							UnitGraph cfg = new SimpleExceptionalGraph(body);
 							methodToCFG.put(sMethod, cfg);
 							
 							for(ThreadInfo ti:threadInfoCollection){
