@@ -160,13 +160,15 @@ public class CFGBuilder {
 				// The traced unit is treated as a start point 
 				List<Unit> worklist = new LinkedList<Unit>();
 				worklist.add(traceUnit);
-				
+				Set<Unit> visited=new HashSet<Unit>();
 				Unit currUnit = null;
 				StmtNode currNode = null;
 				Integer index=0;
 				while (worklist.size() > 0) {
 					currUnit = worklist.get(0);
 					worklist.remove(0);
+					if(!visited.add(currUnit))
+						continue;
 					List<Unit> preds = ug.getPredsOf(currUnit);
 					worklist.addAll(preds);
 					if(index>0)
